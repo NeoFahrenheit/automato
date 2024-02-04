@@ -4,9 +4,6 @@
 #include <sstream>
 #include "Automata.h"
 
-static vector<string> getWordsFromFile(const string& filename) {
-    vector<string> words;
-    string word;
 static vector<string> getWordsFromFile(string filename)
 {
 	vector<string> words;
