@@ -20,7 +20,7 @@ public:
 
 private:
 	string currentState{ "q0" };
-	vector<string> finalStates{ "q14" };
+	const vector<string> finalStates{ "q14" };
 	
 	string word;
 	int index{0};

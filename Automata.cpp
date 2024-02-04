@@ -82,6 +82,7 @@ void Automata::initialize(string entryWord)
 {
 	word = entryWord;
 	computationLog.clear();
+	currentState = "q0";
 	index = 0;
 	isFinished = false;
 	wasUndefined = false;
