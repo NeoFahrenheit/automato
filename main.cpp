@@ -11,14 +11,23 @@ static vector<string> getWordsFromFile(string filename)
 
 	if (file.is_open()) {
 		while (getline(file, word)) {
-			// Remova os espaços em branco do início e do final da palavra.
-			word.erase(remove_if(word.begin(), word.end(), ::isspace), word.end());
-			words.push_back(word);
+			// Remove os espaços em branco do início da palavra
+			while (!word.empty() && isspace(word.front())) {
+				word.erase(word.begin());
+			}
+
+			// Remove os espaços em branco do final da palavra
+			while (!word.empty() && isspace(word.back())) {
+				word.pop_back();
+			}
+
+			if (!word.empty())
+				words.push_back(word);
 		}
 		file.close();
 	}
 	else {
-		cerr << "Erro ao abrir o arquivo" << filename << endl;
+		cerr << "Erro ao abrir o arquivo " << filename << endl;
 	}
 
 	return words;
