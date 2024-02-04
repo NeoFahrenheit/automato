@@ -1,33 +1,45 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "Automata.h"
 
 static vector<string> getWordsFromFile(string filename)
 {
 	vector<string> words;
-	string word;
+	string readFromFile;
 
 	ifstream file(filename);
 
 	if (file.is_open()) {
-		while (getline(file, word)) {
-			// Remove os espaços em branco do início da palavra
-			while (!word.empty() && isspace(word.front())) {
-				word.erase(word.begin());
-			}
+		while (getline(file, readFromFile));
 
-			// Remove os espaços em branco do final da palavra
-			while (!word.empty() && isspace(word.back())) {
-				word.pop_back();
-			}
-
-			if (!word.empty())
-				words.push_back(word);
+		// Remove os espaços em branco da string
+		while (!readFromFile.empty() && isspace(readFromFile.front())) 
+		{
+			readFromFile.erase(readFromFile.begin());
 		}
+
+		// Remove os espaços em branco da string
+		while (!readFromFile.empty() && isspace(readFromFile.back())) 
+		{
+			readFromFile.pop_back();
+		}
+
+		stringstream ss{ readFromFile };
+		while (std::getline(ss, readFromFile, ',')) {
+			words.push_back(readFromFile);
+		}
+
+
 		file.close();
+
+		for (const auto& w : words) {
+			std::cout << w << std::endl;
+		}
 	}
-	else {
-		cerr << "Erro ao abrir o arquivo " << filename << endl;
+	else 
+	{
+		cout << "Erro ao abrir o arquivo " << filename << endl;
 	}
 
 	return words;
