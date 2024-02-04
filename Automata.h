@@ -1,5 +1,3 @@
-#pragma once
-
 #include <iostream>
 #include <format>
 #include <map>
@@ -11,23 +9,24 @@ using namespace std;
 class Automata
 {
 public:
-	Automata();
-	~Automata() {};
+	explicit Automata(vector<map<string, string>> transitionList);
+	~Automata() = default;
 
-	void initialize(string entry);
+    void initialize(string entryWord);
+    void setupFields(string initialState, vector<string> finalStatesList);
 	void start();
 	string getLog();
 
 private:
-	string currentState{ "q0" };
-	const vector<string> finalStates{ "q14" };
+	string currentState{  }; //q0
 	
-	string word;
+	string word{};
 	int index{0};
-	string computationLog;
+	string computationLog{};
 	bool isFinished{ false };
 	bool wasUndefined{ false };
-	vector<map<string, string>> transitions;
+	vector<map<string, string>> transitions{};
+    vector<string> finalStates{};
 
 	bool changeState(char letter);
 	vector<map<string, string>> getStatesAvaiable();
