@@ -20,12 +20,13 @@ public:
 
 private:
 	string currentState{ "q0" };
-	vector<string> finalStates{ "q14", "q16" };
+	vector<string> finalStates{ "q14" };
 	
 	string word;
 	int index{0};
 	string computationLog;
 	bool isFinished{ false };
+	bool wasUndefined{ false };
 	vector<map<string, string>> transitions;
 
 	bool changeState(char letter);

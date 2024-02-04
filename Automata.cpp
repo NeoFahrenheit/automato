@@ -28,6 +28,7 @@ Automata::Automata()
 		{{"at", "q4"}, {"go", "q15"}, {"by", "o"}},
 		{{"at", "q4"}, {"go", "q10"}, {"by", "n"}},
 		{{"at", "q4"}, {"go", "q11"}, {"by", "k"}},
+		{{"at", "q4"}, {"go", "q13"}, {"by", "m"}},
 		{{"at", "q4"}, {"go", "q12"}, {"by", "l"}},
 		{{"at", "q4"}, {"go", "q3"}, {"by", "c"}},
 
@@ -83,6 +84,7 @@ void Automata::initialize(string entryWord)
 	computationLog.clear();
 	index = 0;
 	isFinished = false;
+	wasUndefined = false;
 }
 
 void Automata::start()
@@ -101,6 +103,8 @@ void Automata::start()
 
 		if (!changeState(letter))
 		{
+			computationLog.append("X");
+			wasUndefined = true;
 			break;
 		}
 		else
@@ -137,9 +141,8 @@ bool Automata::changeState(char letter)
 	for (auto state : states)
 	{
 		if (state["by"].at(0) == word[index])
-		{
+		{	
 			currentState = state["go"];
-			
 			index++;
 			return true;
 		}
@@ -163,6 +166,9 @@ vector<map<string, string>> Automata::getStatesAvaiable()
 
 bool Automata::isAccepted()
 {
+	if (wasUndefined)
+		return false;
+
 	for (auto& finalState : finalStates)
 	{
 		if (currentState == finalState)
