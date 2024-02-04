@@ -18,7 +18,7 @@ static vector<string> getWordsFromFile(string filename)
 		file.close();
 	}
 	else {
-		cerr << "Erro ao abrir o arquivo " << filename << endl;
+		cerr << "Erro ao abrir o arquivo" << filename << endl;
 	}
 
 	return words;
@@ -50,7 +50,7 @@ int main()
 	cout << "Trabalho de Linguagens Formais e Automatos, Parte 2\n";
 	cout << "Leandro Arruda Monteiro\n";
 	cout << "Gabriela Copetti Maccagnan\n";
-	cout << "Gabriel Vieclli Pillonetto\n";
+	cout << "Gabriel Vieclli Pillonetto";
 
 	while (option > 0)
 	{

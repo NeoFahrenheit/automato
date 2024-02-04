@@ -168,7 +168,9 @@ vector<map<string, string>> Automata::getStatesAvaiable()
 bool Automata::isAccepted()
 {
 	if (wasUndefined)
+	{
 		return false;
+	}
 
 	for (auto& finalState : finalStates)
 	{
@@ -176,5 +178,6 @@ bool Automata::isAccepted()
 			return true;
 	}
 
+	computationLog.append("X");
 	return false;
 }
