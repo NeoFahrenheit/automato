@@ -15,9 +15,10 @@ void Automata::initialize(string entryWord)
 	wasUndefined = false;
 }
 
-void Automata::setupFields(string initialState, vector<string> finalStatesList) {
+void Automata::setupFields(string initial, vector<string> finalStatesList) {
     finalStates = finalStatesList;
-    currentState = initialState;
+    currentState = initial;
+    initialState = initial;
 }
 
 void Automata::start()
@@ -70,7 +71,7 @@ string Automata::getLog()
 // Retorna true em caso de sucesso.
 bool Automata::changeState(char letter)
 {
-	vector<map<string, string>> states = getStatesAvaiable();
+	vector<map<string, string>> states = getStatesAvaiable(currentState);
 	for (auto state : states)
 	{
 		if (state["by"].at(0) == word[index])
@@ -85,12 +86,12 @@ bool Automata::changeState(char letter)
 }
 
 // Retorna todos os maps que cont�m o estado atual.
-vector<map<string, string>> Automata::getStatesAvaiable()
+vector<map<string, string>> Automata::getStatesAvaiable(string current)
 {
 	vector<map<string, string>> found;
 	for (auto state : transitions)
 	{
-		if (currentState == state["at"])
+		if (current == state["at"])
 			found.push_back(state);
 	}
 
@@ -112,4 +113,65 @@ bool Automata::isAccepted()
 
 	computationLog.append("X");
 	return false;
+}
+
+void Automata::removeUselessStates() {
+    vector<map<string, string>> newTransitions = {};
+    vector<map<string, string>> alreadyVisited = {};
+    for(auto state : transitions) {
+        bool skip = false;
+
+        for(auto added : newTransitions) {
+            if(added["at"] == state["at"]) {
+                skip = true;
+            }
+        }
+
+        if (skip) continue;
+
+        if(canReachFinal(state["at"], alreadyVisited)) {
+            auto reachableStates = getStatesAvaiable(state["at"]);
+            for(auto currStateTransition : reachableStates) {
+                newTransitions.push_back(currStateTransition);
+            }
+        }
+    }
+    transitions = newTransitions;
+}
+
+bool Automata::canReachFinal(string state, vector<map<string, string>> &alreadyVisited) {
+    auto available = getStatesAvaiable(state);
+    bool output = false;
+    bool skipState = false;
+    bool nonReachable = true;
+    for (auto trans: transitions) {
+        nonReachable = true && trans["go"] != state && state != initialState && nonReachable;
+    }
+    if (nonReachable) return false;
+
+    //Para todas as transicoes do estado atual
+    for(auto reachableState : available) {
+        skipState = false;
+        //Caso a transicao atual ja tenha sido avaliada
+        for (auto& visited : alreadyVisited)
+        {
+            if (reachableState["at"] == visited["at"] && reachableState["go"] == visited["go"])
+                skipState = true;
+        }
+        //Passa pra prox transicao
+        if(skipState){
+            continue;
+        }
+        //Verificar se a transicao atual leva a um dos estados finais
+        for (auto& finalState : finalStates)
+        {
+            auto a = reachableState["go"];
+            if (reachableState["go"] == finalState)
+                return true;
+        }
+        //Se nao, adicionar a transicao a lista visitada e verificar as transicoes do proximo estado
+        alreadyVisited.push_back(reachableState);
+        output = output || canReachFinal(reachableState["go"], alreadyVisited);
+    }
+    return output;
 }

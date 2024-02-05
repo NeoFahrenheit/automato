@@ -13,13 +13,15 @@ public:
 	~Automata() = default;
 
     void initialize(string entryWord);
-    void setupFields(string initialState, vector<string> finalStatesList);
+    void setupFields(string initial, vector<string> finalStatesList);
+    void removeUselessStates();
+    bool canReachFinal(string state, vector<map<string, string>> &alreadyVisited);
 	void start();
 	string getLog();
 
 private:
 	string currentState{  }; //q0
-	
+	string initialState { };
 	string word{};
 	int index{0};
 	string computationLog{};
@@ -29,7 +31,7 @@ private:
     vector<string> finalStates{};
 
 	bool changeState(char letter);
-	vector<map<string, string>> getStatesAvaiable();
+	vector<map<string, string>> getStatesAvaiable(string current);
 	bool isAccepted();
 };
 

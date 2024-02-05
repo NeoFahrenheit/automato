@@ -191,6 +191,7 @@ int main() {
                 cout << "Digite o nome do arquivo:\n";
                 getline(std::cin, filename);
                 automato = getAutomataFromFile(filename);
+                automato.removeUselessStates();
                 break;
             default:
                 break;
