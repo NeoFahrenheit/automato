@@ -1,40 +1,43 @@
+#pragma once
+
 #include <iostream>
 #include <format>
+#include <fstream>
 #include <map>
 #include <vector>
-#include <fstream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
 class Automata
 {
 public:
-	explicit Automata(vector<map<string, string>> transitionList);
-	~Automata() = default;
+	Automata();
+	~Automata() {};
 
-    void initialize(string entryWord);
-    void setupFields(string initial, vector<string> finalStatesList);
-    void removeUselessStates();
-    bool isEmptyLanguage();
+	void getAutomataFromFile(const string& filename);
+	void initialize(string entry);
 	void start();
 	string getLog();
 
 private:
-	string currentState{  }; //q0
-	string initialState { };
-	string word{};
-	int index{0};
-	string computationLog{};
+	string initialState;
+	string currentState;
+	vector<string> finalStates;
+
+	string automataName;
+	string word;
+	int index{ 0 };
+	string computationLog;
 	bool isFinished{ false };
 	bool wasUndefined{ false };
-	vector<map<string, string>> transitions{};
-    vector<string> finalStates{};
+	vector<map<string, string>> transitions;
 
 	bool changeState(char letter);
-	vector<map<string, string>> getStatesAvaiable(string current);
-    bool canReachFinal(string state, vector<map<string, string>> &alreadyVisited);
+	vector<map<string, string>> getStatesAvaiable();
 	bool isAccepted();
-    void printStatesToFile();
-};
 
+	vector<string> split(const string& str, char delimiter);
+	vector<string> splitGetAll(const string& str, char delimiter);
+};

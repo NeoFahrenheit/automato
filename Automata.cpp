@@ -1,8 +1,61 @@
-#include "Automata.h"
+﻿#include "Automata.h"
 
-Automata::Automata(vector<map<string, string>> transitionList)
+Automata::Automata()
 {
-    transitions = transitionList;
+}
+
+
+
+void Automata::getAutomataFromFile(const string& filename)
+{
+	vector<string> splittedWords;
+	string currentWord;
+
+	//vector<string> states;
+	ifstream file(filename);
+
+	if (file.is_open()) {
+		// Pega o nome do automatico e a definicao.
+		getline(file, currentWord);
+		splittedWords = split(currentWord, '=');
+		automataName = splittedWords[0];
+
+		// Pega a definicao
+		string temp = splittedWords[1];
+		splittedWords = split(temp, '{'); // Descarta o primeiro {
+		splittedWords = split(splittedWords[1], '{'); // Descarta o segundo {
+		splittedWords = split(splittedWords[1], '{'); // [1] aqui ja e o inicio dos estados.
+		splittedWords = split(splittedWords[1], '}');
+
+		// states = splitGetAll(splittedWords[0], ','); // Estados
+		splittedWords = split(splittedWords[1], ',');
+
+		// Pegando o estado inicial e final
+		splittedWords = split(splittedWords[1], ',');
+		initialState = splittedWords[0];
+
+		splittedWords = split(splittedWords[1], '{');
+		splittedWords = split(splittedWords[1], '}');
+		splittedWords = split(splittedWords[0], '}');
+
+		finalStates = splitGetAll(splittedWords[0], ',');
+
+		getline(file, currentWord);	// Descarta a linha p:
+
+		while (getline(file, currentWord))
+		{
+			splittedWords = split(currentWord, '(');
+			splittedWords = split(splittedWords[1], ')');
+
+			vector<string> fileStates = splitGetAll(splittedWords[0], ',');
+			transitions.push_back({ {"at", fileStates[0]}, {"go", fileStates[2]}, {"by", fileStates[1]} });
+		}
+
+	}
+	else
+	{
+		cout << "Erro ao abrir o arquivo " << filename << endl;
+	}
 }
 
 // Seta a palavra de entrada e prepara o aut�mato para iniciar.
@@ -10,15 +63,10 @@ void Automata::initialize(string entryWord)
 {
 	word = entryWord;
 	computationLog.clear();
+	currentState = initialState;
 	index = 0;
 	isFinished = false;
 	wasUndefined = false;
-}
-
-void Automata::setupFields(string initial, vector<string> finalStatesList) {
-    finalStates = finalStatesList;
-    currentState = initial;
-    initialState = initial;
 }
 
 void Automata::start()
@@ -31,7 +79,7 @@ void Automata::start()
 
 	computationLog.append(format("{} ", currentState));
 	while (index < word.length())
-	{	
+	{
 		const char letter = word[index];
 		computationLog.append(format("{} ", letter));
 
@@ -45,7 +93,7 @@ void Automata::start()
 		{
 			computationLog.append(format("{} ", currentState));
 		}
-	
+
 	}
 
 	if (isAccepted())
@@ -71,11 +119,11 @@ string Automata::getLog()
 // Retorna true em caso de sucesso.
 bool Automata::changeState(char letter)
 {
-	vector<map<string, string>> states = getStatesAvaiable(currentState);
+	vector<map<string, string>> states = getStatesAvaiable();
 	for (auto state : states)
 	{
 		if (state["by"].at(0) == word[index])
-		{	
+		{
 			currentState = state["go"];
 			index++;
 			return true;
@@ -86,12 +134,12 @@ bool Automata::changeState(char letter)
 }
 
 // Retorna todos os maps que cont�m o estado atual.
-vector<map<string, string>> Automata::getStatesAvaiable(string current)
+vector<map<string, string>> Automata::getStatesAvaiable()
 {
 	vector<map<string, string>> found;
 	for (auto state : transitions)
 	{
-		if (current == state["at"])
+		if (currentState == state["at"])
 			found.push_back(state);
 	}
 
@@ -115,82 +163,42 @@ bool Automata::isAccepted()
 	return false;
 }
 
-void Automata::removeUselessStates() {
-    vector<map<string, string>> newTransitions = {};
-    vector<map<string, string>> alreadyVisited = {};
-    for(auto state : transitions) {
-        bool skip = false;
 
-        for(auto added : newTransitions) {
-            if(added["at"] == state["at"]) {
-                skip = true;
-            }
-        }
+vector<string> Automata::split(const string& str, char delimiter)
+{
 
-        if (skip) continue;
+	vector<string> parts(2);
+	size_t pos = str.find(delimiter);
 
-        auto reachable =canReachFinal(state["at"], alreadyVisited);
-        auto reachableStates = getStatesAvaiable(state["at"]);
-        for(auto currStateTransition : reachableStates) {
-            if(reachable) {
-                newTransitions.push_back(currStateTransition);
-            } else {
-                alreadyVisited.push_back(currStateTransition);
-            }
-        }
-    }
-    transitions = newTransitions;
-    printStatesToFile();
+	if (pos != string::npos) {
+		// Extrai o lado esquerdo da string (antes do delimitador)
+		parts[0] = str.substr(0, pos);
+		// Extrai o lado direito da string (depois do delimitador)
+		parts[1] = str.substr(pos + 1);
+	}
+	else {
+		// Se o delimitador não for encontrado, o lado esquerdo é a própria string e o lado direito é uma string vazia.
+		parts[0] = str;
+		parts[1] = "";
+	}
+
+	return parts;
+
 }
 
-bool Automata::canReachFinal(string state, vector<map<string, string>> &alreadyVisited) {
-    auto available = getStatesAvaiable(state);
-    bool output = false;
-    bool skipState = false;
-    bool nonReachable = true;
-    for (auto trans: transitions) {
-        nonReachable = true && trans["go"] != state && state != initialState && nonReachable;
-    }
-    if (nonReachable) return false;
+vector<string> Automata::splitGetAll(const string& str, char delimiter)
+{
+	vector<string> tokens; // Vetor para armazenar as palavras entre os delimitadores
+	istringstream ss(str);
+	string token; // Variável temporária para armazenar cada palavra
 
-    //Para todas as transicoes do estado atual
-    for(auto reachableState : available) {
-        skipState = false;
-        //Caso a transicao atual ja tenha sido avaliada
-        for (auto& visited : alreadyVisited)
-        {
-            if (reachableState["at"] == visited["at"] && reachableState["go"] == visited["go"])
-                skipState = true;
-        }
-        //Passa pra prox transicao
-        if(skipState){
-            continue;
-        }
-        //Verificar se a transicao atual leva a um dos estados finais
-        for (auto& finalState : finalStates)
-        {
-            auto a = reachableState["go"];
-            if (reachableState["go"] == finalState)
-                return true;
-        }
+	while (std::getline(ss, token, delimiter)) {
+		// Verifica se a palavra não está vazia
+		if (!token.empty()) {
+			// Adiciona a palavra ao vetor de tokens
+			tokens.push_back(token);
+		}
+	}
 
-        output = output || canReachFinal(reachableState["go"], alreadyVisited);
-    }
-    return output;
+	return tokens;
 }
-
-bool Automata::isEmptyLanguage() {
-    return transitions.size() == 0;
-}
-
-void Automata::printStatesToFile() {
-    ofstream outputFile("transitions.txt");
-    if(outputFile.is_open()) {
-        for (auto trans : transitions) {
-            outputFile << "(" + trans["at"] +"," + trans["by"] + "," + trans["go"] + ")" << endl;
-        }
-    } else {
-        cerr << "Erro ao abrir o arquivo " << "transitions.txt" << endl;
-    }
-    outputFile.close();
-};
