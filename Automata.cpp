@@ -140,6 +140,7 @@ void Automata::removeUselessStates() {
         }
     }
     transitions = newTransitions;
+    printStatesToFile();
 }
 
 bool Automata::canReachFinal(string state, vector<map<string, string>> &alreadyVisited) {
@@ -181,3 +182,15 @@ bool Automata::canReachFinal(string state, vector<map<string, string>> &alreadyV
 bool Automata::isEmptyLanguage() {
     return transitions.size() == 0;
 }
+
+void Automata::printStatesToFile() {
+    ofstream outputFile("transitions.txt");
+    if(outputFile.is_open()) {
+        for (auto trans : transitions) {
+            outputFile << "(" + trans["at"] +"," + trans["by"] + "," + trans["go"] + ")" << endl;
+        }
+    } else {
+        cerr << "Erro ao abrir o arquivo " << "transitions.txt" << endl;
+    }
+    outputFile.close();
+};

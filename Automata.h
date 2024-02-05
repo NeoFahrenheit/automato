@@ -2,6 +2,7 @@
 #include <format>
 #include <map>
 #include <vector>
+#include <fstream>
 #include <string>
 
 using namespace std;
@@ -34,5 +35,6 @@ private:
 	vector<map<string, string>> getStatesAvaiable(string current);
     bool canReachFinal(string state, vector<map<string, string>> &alreadyVisited);
 	bool isAccepted();
+    void printStatesToFile();
 };
 
