@@ -15,7 +15,7 @@ public:
     void initialize(string entryWord);
     void setupFields(string initial, vector<string> finalStatesList);
     void removeUselessStates();
-    bool canReachFinal(string state, vector<map<string, string>> &alreadyVisited);
+    bool isEmptyLanguage();
 	void start();
 	string getLog();
 
@@ -32,6 +32,7 @@ private:
 
 	bool changeState(char letter);
 	vector<map<string, string>> getStatesAvaiable(string current);
+    bool canReachFinal(string state, vector<map<string, string>> &alreadyVisited);
 	bool isAccepted();
 };
 

@@ -129,10 +129,13 @@ void Automata::removeUselessStates() {
 
         if (skip) continue;
 
-        if(canReachFinal(state["at"], alreadyVisited)) {
-            auto reachableStates = getStatesAvaiable(state["at"]);
-            for(auto currStateTransition : reachableStates) {
+        auto reachable =canReachFinal(state["at"], alreadyVisited);
+        auto reachableStates = getStatesAvaiable(state["at"]);
+        for(auto currStateTransition : reachableStates) {
+            if(reachable) {
                 newTransitions.push_back(currStateTransition);
+            } else {
+                alreadyVisited.push_back(currStateTransition);
             }
         }
     }
@@ -169,9 +172,12 @@ bool Automata::canReachFinal(string state, vector<map<string, string>> &alreadyV
             if (reachableState["go"] == finalState)
                 return true;
         }
-        //Se nao, adicionar a transicao a lista visitada e verificar as transicoes do proximo estado
-        alreadyVisited.push_back(reachableState);
+
         output = output || canReachFinal(reachableState["go"], alreadyVisited);
     }
     return output;
+}
+
+bool Automata::isEmptyLanguage() {
+    return transitions.size() == 0;
 }
